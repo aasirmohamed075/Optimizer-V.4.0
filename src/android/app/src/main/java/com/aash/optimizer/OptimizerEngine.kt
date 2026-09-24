@@ -100,7 +100,7 @@ class OptimizerEngine(private val activity: Activity, private val native: Native
             try { session.javaClass.getMethod("updateTargetWorkDuration", java.lang.Long.TYPE).invoke(session, ns) } catch (t: Throwable) { }
         }
         fun close() {
-            try { session.close() } catch (t: Throwable) { }
+            try { session.javaClass.getMethod("close").invoke(session) } catch (t: Throwable) { }
         }
     }
 
@@ -360,7 +360,8 @@ class OptimizerEngine(private val activity: Activity, private val native: Native
                 if (Build.VERSION.SDK_INT < 31) return@post
                 stopHintsInternal()
                 val mgr = activity.getSystemService(Context.PERFORMANCE_HINT_SERVICE) as? PerformanceHintManager ?: return@post
-                val holder = HintSession31(mgr.createHintSession(intArrayOf(Process.myTid()), frameNanos()))
+                val rawSession = mgr.createHintSession(intArrayOf(Process.myTid()), frameNanos()) ?: return@post
+                val holder = HintSession31(rawSession as Any)
                 hintHolder = holder
                 lastFrameNs = System.nanoTime()
                 val cb = object : Choreographer.FrameCallback {
