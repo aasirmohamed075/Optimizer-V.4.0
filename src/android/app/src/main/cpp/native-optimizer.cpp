@@ -114,19 +114,19 @@ BenchResult bench(int iters) {
     int n = configuredCores();
     if (n > 8) n = 8;
     r.threads = n;
-    std::atomic<double> total{0.0};
+    std::atomic<unsigned long long> total{0};
     std::vector<std::thread> pool;
     auto m0 = std::chrono::steady_clock::now();
     for (int i = 0; i < n; i++) {
         pool.emplace_back([&total, iters]() {
-            total.fetch_add(runBench((uint64_t) iters), std::memory_order_relaxed);
+            total.fetch_add((unsigned long long)runBench((uint64_t) iters), std::memory_order_relaxed);
         });
     }
     for (auto &t : pool) t.join();
     auto m1 = std::chrono::steady_clock::now();
     double msecs = std::chrono::duration<double>(m1 - m0).count();
     if (msecs <= 0) msecs = 1e-9;
-    r.multi = total.load() / msecs / 1e6;
+    r.multi = (double)total.load() / msecs / 1e6;
     return r;
 }
 
