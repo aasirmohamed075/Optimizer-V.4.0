@@ -342,10 +342,14 @@ class OptimizerEngine(private val activity: Activity, private val native: Native
         }
         main.post {
             try {
-                val gm = activity.getSystemService(Context.GAME_SERVICE) as? GameManager
+                val gm = activity.getSystemService(Context.GAME_SERVICE)
                 if (gm != null) {
-                    gm.gameMode = mode
-                    gameMode = gm.gameMode
+                    try {
+                        gm.javaClass.getMethod("setGameMode", Int::class.javaPrimitiveType).invoke(gm, mode)
+                        gameMode = (gm.javaClass.getMethod("getGameMode").invoke(gm) as? Int) ?: mode
+                    } catch (t: Throwable) {
+                        gameMode = mode
+                    }
                 }
             } catch (t: Throwable) {
             }
