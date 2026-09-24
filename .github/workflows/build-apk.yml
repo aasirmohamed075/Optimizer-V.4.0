@@ -30,6 +30,11 @@ jobs:
 
       - name: Install SDK packages
         run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls "$ANDROID_SDK_ROOT/cmdline-tools" || true
+          export PATH="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+          sdkmanager --version
           yes | sdkmanager --licenses || true
           sdkmanager --install "platforms;android-34" "build-tools;34.0.0" "cmake;3.22.1" "ndk;26.1.10909125"
 
