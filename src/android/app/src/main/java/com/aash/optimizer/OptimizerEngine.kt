@@ -92,12 +92,12 @@ class OptimizerEngine(private val activity: Activity, private val native: Native
 
     /** Wrapper kept in its own class so the API-31 types are only ever resolved on API 31+. */
     @RequiresApi(31)
-    private class HintSession31(private val session: PerformanceHintManager.PerformanceHintSession) {
+    private class HintSession31(private val session: Any) {
         fun report(ns: Long) {
-            try { session.reportActualWorkDuration(ns) } catch (t: Throwable) { }
+            try { session.javaClass.getMethod("reportActualWorkDuration", java.lang.Long.TYPE).invoke(session, ns) } catch (t: Throwable) { }
         }
         fun target(ns: Long) {
-            try { session.updateTargetWorkDuration(ns) } catch (t: Throwable) { }
+            try { session.javaClass.getMethod("updateTargetWorkDuration", java.lang.Long.TYPE).invoke(session, ns) } catch (t: Throwable) { }
         }
         fun close() {
             try { session.close() } catch (t: Throwable) { }
@@ -300,10 +300,7 @@ class OptimizerEngine(private val activity: Activity, private val native: Native
                 lp.preferredRefreshRate = if (targetFps >= 144) 0f else targetFps.toFloat()
                 w.attributes = lp
                 if (Build.VERSION.SDK_INT >= 30) {
-                    w.setFrameRate(
-                        targetFps.toFloat(),
-                        if (targetFps >= 144) FRAME_RATE_COMPATIBILITY_DEFAULT else FRAME_RATE_COMPATIBILITY_FIXED_SOURCE
-                    )
+                    try { w.javaClass.getMethod("setFrameRate", java.lang.Float.TYPE, java.lang.Integer.TYPE).invoke(w, targetFps.toFloat(), if (targetFps >= 144) FRAME_RATE_COMPATIBILITY_DEFAULT else FRAME_RATE_COMPATIBILITY_FIXED_SOURCE) } catch (t: Throwable) { }
                 }
                 if (Build.VERSION.SDK_INT in 23..29) {
                     val display = w.windowManager?.defaultDisplay
