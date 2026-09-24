@@ -11,7 +11,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
-import android.os.Choreographer
+import android.view.Choreographer
 import android.os.Debug
 import android.os.Handler
 import android.os.Looper
